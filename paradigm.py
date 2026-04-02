@@ -1,4 +1,4 @@
-from psychopy import visual, core, monitors, gui  # import some libraries from PsychoPy
+from psychopy import visual, core, monitors, gui
 from psychopy.hardware import keyboard
 
 import os
