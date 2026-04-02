@@ -40,13 +40,24 @@ def collect_gui_data():
     
     gui_window = gui.DlgFromDict(gui_dict, title = 'Test title', sortKeys = False, show = False)
     
-    gui_data = gui_window.show()
+    while True:
+    
+        gui_data = gui_window.show()
         
-    if gui_window.OK:
-        logging.info(f'Collected gui data: {gui_data}')
-        save_gui_data(gui_data)
-    else:
-        core.quit()
+        control_condition = len(gui_data['Participant ID']) > 0 and 'id' in gui_data['Participant ID']
+        
+        if gui_window.OK:
+            if control_condition:
+                logging.info(f'Collected gui data: {gui_data}')
+                save_gui_data(gui_data)
+                return
+            else:
+                warning_window = gui.Dlg(title='Warning!')
+                warning_message = 'Participant ID missing!'
+                warning_window.addText(warning_message)
+                warning_data = warning_window.show()
+        else:
+            core.quit()
 
 def experiment():
     #create a window
