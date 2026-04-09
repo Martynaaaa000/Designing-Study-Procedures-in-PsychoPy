@@ -36,8 +36,8 @@ def save_gui_data(gui_data: dict):
 
 def collect_gui_data():
     
-    gui_dict = {'Participant ID': '',
-                'Participant age': '',
+    gui_dict = {'Participant ID': 'test_id',
+                'Participant age': '30',
                 'Participant gender': ['Male', 'Female', 'Other'],
                 'Handedness': ['Left', 'Right', 'Ambidextrous'],
                 'Number of trials': 10,
@@ -99,6 +99,48 @@ def instruction_trial(win, kb, instruction_text):
 
 # Experiment trials
 
+# TASK: question_1 -> red, larger letters; question_2 -> green, smaller letters, placed below; answer -> black font, different font style, bold
+
+def text_trial(win, kb):
+    
+    win.callOnFlip(kb.clearEvents)
+    
+    question_1 = visual.TextStim(win, text = "What is your name?")
+    question_2 = visual.TextStim(win, text = "What is your age?", pos = (100, -200), units = 'pix')
+    
+    answer_text = ''
+    
+    answer = visual.TextBox2(win, text = answer_text, pos = (-100, -300), units = 'pix', alignment = 'center')
+    
+    answer_keys = list(map(chr, range(97,123))) + [f'{i}' for i in range(10)] + ['return', 'enter', 'backspace', 'space']
+    
+    while True:
+        question_1.draw()
+        question_2.draw()
+        answer.draw()
+        win.flip()
+        
+        #answer_keys = []
+        #for i in range(10):
+        #    answer_keys.append(f"{i}")
+        
+        response_keys = kb.getKeys(keyList = answer_keys, clear = True)
+        
+        for key in response_keys:
+            if key.name in ['q']:
+                core.quit()
+            elif key.name in ['enter', 'return']:
+                return
+            elif key.name == 'space':
+                answer_text += ' '
+                answer.setText(answer_text)
+            elif key.name == 'backspace':
+                answer_text = answer_text[:-1]
+                answer.setText(answer_text)
+            else:
+                answer_text += key.name
+                answer.setText(answer_text)
+
 # Main experiment function
 
 def experiment():
@@ -114,7 +156,7 @@ def experiment():
     win_width = monitors.Monitor('testMonitor').getSizePix()[0]
     win_height = monitors.Monitor('testMonitor').getSizePix()[1]
     
-    mywin = visual.Window([win_width,win_height],fullscr = True, monitor="testMonitor", color = 'green', units="deg")
+    mywin = visual.Window([win_width,win_height],fullscr = True, monitor="testMonitor", color = 'gray', units="pix")
      
     #create some stimuli
     grating = visual.GratingStim(win=mywin, mask="circle", size=3, pos=[-4,0], sf=3)
@@ -130,14 +172,19 @@ def experiment():
     # First instruction
     instruction_trial(mywin, kb, fixation)
     instruction_trial(mywin, kb, greetings_trial)
+    
+    text_trial(mywin, kb)
 
     #draw the stimuli and update the window
-    grating.draw()
+    #grating.draw()
     #fixation.draw()
     mywin.update()
 
     #pause, so you get a chance to see it!
     core.wait(2.0)
+    
+    return mywin, kb
 
 if __name__ == "__main__":
-    experiment()
+    mywin, kb = experiment()
+    text_trial(mywin, kb)
