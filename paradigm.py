@@ -1,5 +1,6 @@
 from psychopy import visual, core, monitors, gui
 from psychopy.hardware import keyboard
+from psychopy.visual.circle import Circle
 
 import os
 import time
@@ -99,8 +100,6 @@ def instruction_trial(win, kb, instruction_text):
 
 # Experiment trials
 
-# TASK: question_1 -> red, larger letters; question_2 -> green, smaller letters, placed below; answer -> black font, different font style, bold
-
 def text_trial(win, kb):
     
     win.callOnFlip(kb.clearEvents)
@@ -140,6 +139,26 @@ def text_trial(win, kb):
             else:
                 answer_text += key.name
                 answer.setText(answer_text)
+                
+def simple_visual_trial(win, kb):
+    
+    win.callOnFlip(kb.clearEvents)
+    
+    test_rect = visual.rect.Rect(win, width = 100, height = 100, units = 'pix', lineColor = 'red')
+    test_circle = Circle(win, radius = 100, units = 'pix', lineColor = 'red', pos = (-100, 100))
+    
+    while True:
+        test_rect.draw()
+        test_circle.draw()
+        win.flip()
+        
+        response_keys = kb.getKeys(keyList = ['q', 'space'], clear = True)
+        
+        for key in response_keys:
+            if key.name in ['q']:
+                core.quit()
+            elif key.name == 'space':
+                return
 
 # Main experiment function
 
@@ -170,21 +189,23 @@ def experiment():
     greetings_trial = visual.TextStim(mywin, text = "Hello!")
     
     # First instruction
-    instruction_trial(mywin, kb, fixation)
-    instruction_trial(mywin, kb, greetings_trial)
+    #instruction_trial(mywin, kb, fixation)
+    #instruction_trial(mywin, kb, greetings_trial)
     
-    text_trial(mywin, kb)
+    #text_trial(mywin, kb)
+    
+    simple_visual_trial(mywin, kb)
 
     #draw the stimuli and update the window
     #grating.draw()
     #fixation.draw()
-    mywin.update()
+    #mywin.update()
 
     #pause, so you get a chance to see it!
-    core.wait(2.0)
+    #core.wait(2.0)
     
     return mywin, kb
 
 if __name__ == "__main__":
     mywin, kb = experiment()
-    text_trial(mywin, kb)
+    #text_trial(mywin, kb)
