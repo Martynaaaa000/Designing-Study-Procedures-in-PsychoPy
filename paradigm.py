@@ -12,6 +12,9 @@ logging.basicConfig(level=logging.INFO)
 script_path = os.path.abspath(os.path.dirname(__file__))
 
 results_path = script_path + '/Results/'
+input_path = script_path + '/Input/'
+
+preloaded_images = []
 
 os.makedirs(results_path, exist_ok=True)
 
@@ -83,6 +86,16 @@ def collect_gui_data():
             warning_window.addText(warning_message)
             warning_data = warning_window.show()
 
+# Preload images
+
+def preload_images(win):
+    global input_path, preloaded_images
+    
+    for file in os.listdir(input_path):
+        img_name = file.split('.')[0]
+        #preloaded_images[int(img_name)] = visual.ImageStim(win, image = input_path + file)
+        preloaded_images.append(visual.ImageStim(win, image = input_path + file))
+
 # Instructions trial
 
 def instruction_trial(win, kb, instruction_text):
@@ -150,6 +163,55 @@ def simple_visual_trial(win, kb):
     while True:
         test_rect.draw()
         test_circle.draw()
+        
+        win.flip()
+        
+        response_keys = kb.getKeys(keyList = ['q', 'space'], clear = True)
+        
+        for key in response_keys:
+            if key.name in ['q']:
+                core.quit()
+            elif key.name == 'space':
+                return
+                
+def simple_visual_trial_with_timer(win, kb):
+    
+    win.callOnFlip(kb.clearEvents)
+    
+    test_rect = visual.rect.Rect(win, width = 100, height = 100, units = 'pix', lineColor = 'red')
+    test_circle = Circle(win, radius = 100, units = 'pix', lineColor = 'red', pos = (-100, 100))
+        
+    trial_timer = core.Clock()
+    trial_timer.reset()
+        
+    #while True: -> non stop
+    while trial_timer.getTime() < 1.5: # -> waits 1.5 seconds
+        test_rect.draw()
+        test_circle.draw()
+                
+        win.flip()
+        
+        response_keys = kb.getKeys(keyList = ['q', 'space'], clear = True)
+        
+        for key in response_keys:
+            if key.name in ['q']:
+                core.quit()
+            elif key.name == 'space':
+                return
+                
+def image_trial_with_timer(win, kb, image):
+    global input_path
+    
+    win.callOnFlip(kb.clearEvents)
+        
+    trial_timer = core.Clock()
+    trial_timer.reset()
+        
+    #while True: -> non stop
+    while trial_timer.getTime() < 3: # -> waits 3 seconds
+        
+        image.draw()
+                
         win.flip()
         
         response_keys = kb.getKeys(keyList = ['q', 'space'], clear = True)
@@ -194,15 +256,25 @@ def experiment():
     
     #text_trial(mywin, kb)
     
-    simple_visual_trial(mywin, kb)
+    #simple_visual_trial(mywin, kb)
+    #simple_visual_trial_with_timer(mywin, kb)
+    #image_trial_with_timer(mywin, kb)
 
     #draw the stimuli and update the window
     #grating.draw()
     #fixation.draw()
     #mywin.update()
-
-    #pause, so you get a chance to see it!
-    #core.wait(2.0)
+    
+    # Image stimuli
+    
+    print(f'Preloaded images: {preloaded_images}')
+    
+    preload_images(mywin)
+    
+    print(f'Preloaded images: {preloaded_images}')
+    
+    for image in preloaded_images:
+        image_trial_with_timer(mywin, kb, image)
     
     return mywin, kb
 
