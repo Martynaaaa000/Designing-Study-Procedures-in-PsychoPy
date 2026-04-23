@@ -5,6 +5,8 @@ from psychopy.visual.circle import Circle
 import os
 import time
 
+import random
+
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -92,9 +94,10 @@ def preload_images(win):
     global input_path, preloaded_images
     
     for file in os.listdir(input_path):
-        img_name = file.split('.')[0]
-        #preloaded_images[int(img_name)] = visual.ImageStim(win, image = input_path + file)
-        preloaded_images.append(visual.ImageStim(win, image = input_path + file))
+        if '.jpg' in file:
+            img_name = file.split('.')[0]
+            #preloaded_images[int(img_name)] = visual.ImageStim(win, image = input_path + file)
+            preloaded_images.append(visual.ImageStim(win, image = input_path + file))
 
 # Instructions trial
 
@@ -220,7 +223,9 @@ def image_trial_with_timer(win, kb, image):
             if key.name in ['q']:
                 core.quit()
             elif key.name == 'space':
-                return
+                return trial_timer.getTime(), key.name
+                
+    return 3, 'no key press'
 
 # Main experiment function
 
@@ -271,10 +276,25 @@ def experiment():
     
     preload_images(mywin)
     
-    print(f'Preloaded images: {preloaded_images}')
+    print(f'Preloaded images after preloading: {preloaded_images}')
+    
+    random.shuffle(preloaded_images)
+    
+    print(f'Preloaded images after shuffling: {preloaded_images}')
+    
+    trial_counter = 0
     
     for image in preloaded_images:
-        image_trial_with_timer(mywin, kb, image)
+        
+        #if trial_counter == 3:
+        if trial_counter % 3 == 0 and trial_counter != 0:
+            instruction_trial(mywin, kb, fixation)
+        
+        time, key = image_trial_with_timer(mywin, kb, image)
+        
+        logging.info(f'{time},{key}')
+        
+        trial_counter += 1
     
     return mywin, kb
 
